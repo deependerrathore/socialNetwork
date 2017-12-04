@@ -12,9 +12,14 @@
 			if (strlen($username) >=3 && strlen($username) <=32) {
 				if (strlen($password) >=6 && strlen($password) <=60) {
 					if (preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
-						if (filter_var($email,FILTER_VALIDATE_EMAIL)) {				
-							DB::query('INSERT INTO users VALUES (null,:username , :password, :email)', array(':username'=>$username,':password'=>password_hash($password,PASSWORD_BCRYPT),':email'=>$email));
-							echo 'success!';
+						if (filter_var($email,FILTER_VALIDATE_EMAIL)) {	
+							if (!DB::query('SELECT email FROM users WHERE email = :email',array(':email'=>$email))) {
+								DB::query('INSERT INTO users VALUES (null,:username , :password, :email)', array(':username'=>$username,':password'=>password_hash($password,PASSWORD_BCRYPT),':email'=>$email));
+								echo 'success!';
+							}else{
+								echo 'Email in use';
+							}		
+							
 						}else{
 							echo 'Invalid email address!';
 						}
