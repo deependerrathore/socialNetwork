@@ -60,13 +60,26 @@
 					die('You are not allowed to post on others profile!');
 				}
 				
+			}	
+
+			if (isset($_GET['postid'])) {
+				if (!DB::query('SELECT user_id FROM post_likes WHERE user_id = :userid AND post_id =:postid',array(':userid'=>$userid , ':postid'=>$_GET['postid']))) {
+					DB::query('UPDATE posts SET likes = likes + 1 WHERE id = :postid',array(':postid'=>$_GET['postid']));
+					DB::query('INSERT INTO post_likes VALUES (null,:postid,:userid)',array(':postid'=>$_GET['postid'],':userid'=>$userid));
+				}
+				
 			}
 
 			$dbposts = DB::query('SELECT * FROM posts WHERE user_id =:userid ORDER BY id DESC',array(':userid'=>$userid));
 			$posts  = "";
 			foreach ($dbposts as $p) {
 				//print_r($p['post']);
-				$posts .= $p['post'] . "<hr> <br />";
+				$posts .= htmlspecialchars($p['post']) . "
+				 <form action='profile.php?username=$username&postid=".$p['id'] . "' method='POST'>
+ 					<input type='submit' name='like' value='Like'>
+ 				</form>
+				<hr> <br />
+				";
 			}
 			
 		}else{
@@ -93,6 +106,9 @@
  	<textarea rows="10" cols="80" name="postbody"></textarea>
  	<input type="submit" name="post" value="Post">
  </form>
+
+
+
 <div class="posts">
 	<?php echo $posts; ?>
 </div>
