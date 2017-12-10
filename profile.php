@@ -50,11 +50,16 @@
 
 			if (isset($_POST['post'])) {
 				$postbody = $_POST['postbody'];
-				$userid = Login::isLoggedIn();
+				$loggedInUser = Login::isLoggedIn();
 				if (strlen($postbody) >255 || strlen($postbody) < 1) {
 					die('Incorrect lenght!');
 				}
-				DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0)',array(':post'=>$postbody,':userid'=>$userid));
+				if ($loggedInUser == $userid) {
+					DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0)',array(':post'=>$postbody,':userid'=>$userid));
+				}else{
+					die('You are not allowed to post on others profile!');
+				}
+				
 			}
 
 			$dbposts = DB::query('SELECT * FROM posts WHERE user_id =:userid ORDER BY id DESC',array(':userid'=>$userid));
