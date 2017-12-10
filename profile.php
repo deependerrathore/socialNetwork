@@ -63,9 +63,11 @@
 			}	
 
 			if (isset($_GET['postid'])) {
-				if (!DB::query('SELECT user_id FROM post_likes WHERE user_id = :userid AND post_id =:postid',array(':userid'=>$userid , ':postid'=>$_GET['postid']))) {
+				if (!DB::query('SELECT user_id FROM post_likes WHERE user_id = :userid AND post_id =:postid',array(':userid'=>$followerid , ':postid'=>$_GET['postid']))) {
 					DB::query('UPDATE posts SET likes = likes + 1 WHERE id = :postid',array(':postid'=>$_GET['postid']));
-					DB::query('INSERT INTO post_likes VALUES (null,:postid,:userid)',array(':postid'=>$_GET['postid'],':userid'=>$userid));
+					DB::query('INSERT INTO post_likes VALUES (null,:postid,:userid)',array(':postid'=>$_GET['postid'],':userid'=>$followerid));
+				}else{
+					echo 'already liked!';
 				}
 				
 			}
