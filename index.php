@@ -17,7 +17,7 @@
 	}
 
 	if (isset($_POST['comment'])) {
-		
+
 		Comment::createComment($_POST['commentbody'],$_GET['postid'],$userid);
 				
 	}
@@ -43,7 +43,9 @@
  			<textarea rows='4' cols='55' name='commentbody'></textarea>
  			<input type='submit' name='comment' value='Comment'>
  		</form>
- 		<hr> <br />";
+ 		";
+ 		echo Comment::displayComments($post['id']);	 
+ 		echo "<hr /> <br />";
  		
 		
 	}
