@@ -25,7 +25,7 @@
 	WHERE posts.user_id = followers.user_id
 	and posts.user_id = users.id
 	AND followers.follower_id = :userid
-	ORDER BY posts.likes DESC',array(':userid'=>Login::isLoggedIn()));
+	ORDER BY posts.likes DESC',array(':userid'=>$userid));
 
 	foreach ($followingposts as $post) {
 		
