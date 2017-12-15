@@ -11,11 +11,27 @@
 			die('Incorrect lenght!');
 		}
 		if ($loggedInUser == $profileUserId) {
-			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0)',array(':post'=>$postbody,':userid'=>$profileUserId));
+			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null)',array(':post'=>$postbody,':userid'=>$profileUserId));
 		}else{
 			die('You are not allowed to post on others profile!');
 		}
  	}
+
+ 	public static function createImgPost($postbody,$loggedInUser,$profileUserId){
+ 		
+		
+		if (strlen($postbody) >255) {
+			die('Incorrect lenght!');
+		}
+		if ($loggedInUser == $profileUserId) {
+			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null)',array(':post'=>$postbody,':userid'=>$profileUserId));
+			$postid = DB::query('SELECT id FROM posts WHERE user_id = :userid ORDER BY id DESC LIMIT 1',array(':userid'=>$loggedInUser))[0]['id'];
+			return $postid;
+		}else{
+			die('You are not allowed to post on others profile!');
+		}
+ 	}
+
 
  	public static function likePost($postId , $likerId){
  		if (!DB::query('SELECT user_id FROM post_likes WHERE user_id = :userid AND post_id =:postid',array(':userid'=>$likerId , ':postid'=>$postId))) {
@@ -34,7 +50,7 @@
 			foreach ($dbposts as $p) {
 
 				if(!DB::query('SELECT post_id FROM post_likes WHERE post_id = :postid AND user_id = :userid', array(':postid'=>$p['id'] ,':userid'=>$loggedInUserId))){
-					$posts .= htmlspecialchars($p['post']) . "
+					$posts .= "<img src='".$p['postimg']."'>".htmlspecialchars($p['post']) . "
 				 	<form action='profile.php?username=$username&postid=".$p['id'] . "' method='POST'>
  						<input type='submit' name='like' value='Like'>
  						<span>". $p['likes']. "</span>
@@ -42,7 +58,7 @@
 					<hr> <br />
 					";	
 				}else{
-					$posts .= htmlspecialchars($p['post']) . "
+					$posts .= "<img src='".$p['postimg']."'>".htmlspecialchars($p['post']) . "
 				 	<form action='profile.php?username=$username&postid=".$p['id'] . "' method='POST'>
  						<input type='submit' name='unlike' value='Unlike'>
  						<span>". $p['likes']. "</span>
