@@ -3,6 +3,7 @@
 	include ('classes/Login.php');
 	include ('classes/Post.php');
 	include ('classes/Image.php');
+	include ('classes/Notify.php');
 	$username = "";
 	$verified = FALSE;
 	$isFollowing = FALSE;
