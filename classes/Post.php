@@ -13,6 +13,12 @@
 
 		$topics = self::getTopics($postbody);
 		if ($loggedInUser == $profileUserId) {
+			if (count(self::notify($postbody)) != 0) {
+				foreach (self::notify($postbody) as $key => $n) {
+					$r = DB::query('SELECT id FROM users WHERE username= :username',array(':username'=>$key))[0]['id']; 
+					DB::query('INSERT INTO notifications VALUES (null,:type,:receiver,:sender)',array(':type'=>$n,':receiver'=>$r,':sender'=>$loggedInUser));
+				}
+			}
 			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null,:topics)',array(':post'=>$postbody,':userid'=>$profileUserId,':topics'=>$topics));
 		}else{
 			die('You are not allowed to post on others profile!');
@@ -62,6 +68,25 @@
  		return $topics;
  	}
 
+ 	public static function notify($text){
+ 		$text = explode(" ", $text);
+
+ 		$notify = array();
+
+ 		foreach ($text as $word) {
+ 			if (substr($word,0, 1) == '@') {
+
+ 				$username = substr($word, 1);
+ 				if (DB::query('SELECT username from users WHERE username = :username',array(':username'=>$username))) {
+ 					$notify[$username] = 1;
+ 				}
+ 				
+ 			}
+ 		}
+
+ 		return $notify;
+
+ 	}
  	public static function link_add($text){
 
  		$text = explode(" ", $text);
