@@ -16,7 +16,7 @@
 			if (count(self::notify($postbody)) != 0) {
 				foreach (self::notify($postbody) as $key => $n) {
 					$r = DB::query('SELECT id FROM users WHERE username= :username',array(':username'=>$key))[0]['id']; 
-					DB::query('INSERT INTO notifications VALUES (null,:type,:receiver,:sender)',array(':type'=>$n,':receiver'=>$r,':sender'=>$loggedInUser));
+					DB::query('INSERT INTO notifications VALUES (null,:type,:receiver,:sender,:extra)',array(':type'=>$n['type'],':receiver'=>$r,':sender'=>$loggedInUser,':extra'=>$n['extra']));
 				}
 			}
 			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null,:topics)',array(':post'=>$postbody,':userid'=>$profileUserId,':topics'=>$topics));
@@ -34,6 +34,13 @@
 		$topics = self::getTopics($postbody);
 
 		if ($loggedInUser == $profileUserId) {
+			if (count(self::notify($postbody)) != 0) {
+				foreach (self::notify($postbody) as $key => $n) {
+					$r = DB::query('SELECT id FROM users WHERE username= :username',array(':username'=>$key))[0]['id']; 
+					DB::query('INSERT INTO notifications VALUES (null,:type,:receiver,:sender,:extra)',array(':type'=>$n['type'],':receiver'=>$r,':sender'=>$loggedInUser,':extra'=>$n['extra']));
+				}
+			}
+
 			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null,:topics)',array(':post'=>$postbody,':userid'=>$profileUserId,':topics'=>$getTopics));
 			$postid = DB::query('SELECT id FROM posts WHERE user_id = :userid ORDER BY id DESC LIMIT 1',array(':userid'=>$loggedInUser))[0]['id'];
 			return $postid;
@@ -78,7 +85,7 @@
 
  				$username = substr($word, 1);
  				if (DB::query('SELECT username from users WHERE username = :username',array(':username'=>$username))) {
- 					$notify[$username] = 1;
+ 					$notify[$username] = array("type"=>1,"extra"=>'{"postbody":"'.implode($text, " ").'"}');
  				}
  				
  			}
