@@ -10,8 +10,10 @@
 		if (strlen($postbody) >255 || strlen($postbody) < 1) {
 			die('Incorrect lenght!');
 		}
+
+		$topics = self::getTopics($postbody);
 		if ($loggedInUser == $profileUserId) {
-			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null)',array(':post'=>$postbody,':userid'=>$profileUserId));
+			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null,:topics)',array(':post'=>$postbody,':userid'=>$profileUserId,':topics'=>$topics));
 		}else{
 			die('You are not allowed to post on others profile!');
 		}
@@ -23,8 +25,10 @@
 		if (strlen($postbody) >255) {
 			die('Incorrect lenght!');
 		}
+		$topics = self::getTopics($postbody);
+
 		if ($loggedInUser == $profileUserId) {
-			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null)',array(':post'=>$postbody,':userid'=>$profileUserId));
+			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null,:topics)',array(':post'=>$postbody,':userid'=>$profileUserId,':topics'=>$getTopics));
 			$postid = DB::query('SELECT id FROM posts WHERE user_id = :userid ORDER BY id DESC LIMIT 1',array(':userid'=>$loggedInUser))[0]['id'];
 			return $postid;
 		}else{
@@ -43,6 +47,20 @@
 			DB::query('DELETE FROM post_likes WHERE post_id = :postid AND user_id =:userid',array(':postid'=>$postId,':userid'=>$likerId));
 		}
  	}
+ 	public static function getTopics($text){
+
+ 		$text = explode(" ", $text);
+
+ 		$topics = "";
+ 		foreach ($text as $word) {
+ 			
+			if (substr($word,0, 1) == '#') {
+ 				$topics .= substr($word, 1). ",";
+ 			}
+ 		}
+
+ 		return $topics;
+ 	}
 
  	public static function link_add($text){
 
@@ -60,6 +78,8 @@
  					$newstring .= htmlspecialchars($word) . " ";
  				}
  				
+ 			}else if (substr($word,0, 1) == '#') {
+ 				$newstring .= "<a href='topic.php?topic=".substr($word, 1)."'>". htmlspecialchars($word) . " </a>";
  			}else{
  				$newstring .= htmlspecialchars($word) . " ";
  			}
