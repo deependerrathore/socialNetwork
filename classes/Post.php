@@ -40,7 +40,7 @@
  	public static function likePost($postId , $likerId){
  		if (!DB::query('SELECT user_id FROM post_likes WHERE user_id = :userid AND post_id =:postid',array(':userid'=>$likerId , ':postid'=>$postId))) {
 			DB::query('UPDATE posts SET likes = likes + 1 WHERE id = :postid',array(':postid'=>$postId));
-			DB::query('INSERT INTO post_likes VALUES (null,:postid,:userid)',array(':postid'=>$postId,':userid'=>$likerId));
+			@DB::query('INSERT INTO post_likes VALUES (null,:postid,:userid)',array(':postid'=>$postId,':userid'=>$likerId));
 		}else{
 			//echo 'already liked!';
 			DB::query('UPDATE posts SET likes = likes  - 1 WHERE id = :postid',array(':postid'=>$postId));
@@ -98,17 +98,27 @@
 				 	<form action='profile.php?username=$username&postid=".$p['id'] . "' method='POST'>
  						<input type='submit' name='like' value='Like'>
  						<span>". $p['likes']. "</span>
- 					</form>
-					<hr> <br />
+ 					";
+ 					if ($userid == $loggedInUserId) {
+ 						$posts .= "<input type='submit' name='deletepost' value='x'>";
+ 					}
+
+ 					$posts .="
+					</form><hr> <br />
 					";	
 				}else{
 					$posts .= "<img src='".$p['postimg']."'>". self::link_add($p['post']) . "
 				 	<form action='profile.php?username=$username&postid=".$p['id'] . "' method='POST'>
  						<input type='submit' name='unlike' value='Unlike'>
  						<span>". $p['likes']. "</span>
- 					</form>
-					<hr> <br />
-					";	
+ 					";
+ 					if ($userid == $loggedInUserId) {
+ 						$posts .= "<input type='submit' name='deletepost' value='x'>";
+ 					}
+
+ 					$posts .="
+					</form><hr> <br />
+					";		
 				}
 				//print_r($p['post']);
 				

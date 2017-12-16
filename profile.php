@@ -31,6 +31,7 @@
 				}
 				
 			}
+
 			if (isset($_POST['unfollow'])) {
 				if ($userid != $followerid) {
 					if (DB::query('SELECT follower_id FROM followers WHERE user_id = :userid AND follower_id =:followerid',array(':userid'=>$userid,':followerid'=>$followerid))) {
@@ -43,11 +44,21 @@
 				}
 			}
 
+			if (isset($_POST['deletepost'])) {
+				//echo 'Clicked on delete';				
+				if(DB::query('SELECT id FROM posts WHERE id = :postid AND user_id=:userid',array(':postid'=>$_GET['postid'] , ':userid'=>$followerid))){
+					DB::query('DELETE FROM posts WHERE id = :postid AND user_id = :userid',array(':postid'=>$_GET['postid'] , ':userid'=>$followerid));
+					//DB::query('DELETE FROM post_likes WHERE post_id=:postid',array(':postid' => $_GET['postid']));
+					echo 'post deleted!';
+				}
+			}
+
 			if (DB::query('SELECT follower_id FROM followers WHERE user_id = :userid AND follower_id =:followerid',array(':userid'=>$userid,':followerid'=>$followerid))) {
 				//echo 'Already following!';
 				$isFollowing = TRUE;
 
 			}
+
 
 			if (isset($_POST['post'])) {
 				if ($_FILES['postimg']['size'] == 0 ) {
@@ -61,7 +72,7 @@
 				
 			}	
 
-			if (isset($_GET['postid'])) {
+			if (isset($_GET['postid']) && !isset($_POST['deletepost'])) {
 				Post::likePost($_GET['postid'],$followerid);
 				
 			}
