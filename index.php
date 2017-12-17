@@ -21,6 +21,50 @@
 		Comment::createComment($_POST['commentbody'],$_GET['postid'],$userid);
 				
 	}
+
+	if (isset($_POST['search'])) {
+		$tosearch = explode(" ", $_POST['searchbox']);
+		if (count($tosearch) == 1) {
+			$tosearch = str_split($tosearch[0],2);
+		}
+
+		$whereclause = "";
+		$paramsarray= array(':username' => '%'.$_POST['searchbox'].'%' );
+		for ($i=0; $i < count($tosearch); $i++) { 
+			$whereclause .= " OR username LIKE :u$i ";
+			$paramsarray[":u$i"]= $tosearch[$i];
+		}
+		
+		$users = DB::query('SELECT username FROM users WHERE username LIKE :username '. $whereclause.'',$paramsarray);
+		echo '<pre>';
+		print_r($users);
+		echo '</pre>';
+		
+		$whereclause = "";
+		$paramsarray= array(':post' => '%'.$_POST['searchbox'].'%' );
+		for ($i=0; $i < count($tosearch); $i++) { 
+			if ($i / 2) {
+				
+				$whereclause .= " OR post LIKE :p$i ";
+				$paramsarray[":p$i"]= $tosearch[$i];	
+			}
+			
+		}
+
+		$posts = DB::query('SELECT post FROM posts WHERE post LIKE :post '. $whereclause.'',$paramsarray);
+		echo '<pre>';
+		print_r($posts);
+		echo '</pre>';
+	}
+
+	?>
+
+	<form action="index.php" method="post">
+		<input type="text" name="searchbox" placeholder="Search...">
+		<input type="submit" name="search" value="Search">
+	</form>
+
+	<?php
 	$followingposts = DB::query('SELECT posts.id, posts.post,posts.likes,users.username FROM posts,followers,users
 	WHERE posts.user_id = followers.user_id
 	and posts.user_id = users.id

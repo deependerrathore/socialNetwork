@@ -41,7 +41,7 @@
 				}
 			}
 
-			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null,:topics)',array(':post'=>$postbody,':userid'=>$profileUserId,':topics'=>$getTopics));
+			DB::query('INSERT INTO posts VALUES (null,:post,now(),:userid,0,null,:topics)',array(':post'=>$postbody,':userid'=>$profileUserId,':topics'=>$topics));
 			$postid = DB::query('SELECT id FROM posts WHERE user_id = :userid ORDER BY id DESC LIMIT 1',array(':userid'=>$loggedInUser))[0]['id'];
 			return $postid;
 		}else{
