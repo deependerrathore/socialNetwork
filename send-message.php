@@ -9,8 +9,8 @@
 	}
 
 	if (isset($_POST['send'])) {
-
-		if (strlen($_POST['body'] > 0)) {
+		
+		if (strlen($_POST['body'] > '0' )) {
 			if (DB::query('SELECT id FROM users WHERE id= :receiver',array(':receiver'=>$_GET['receiver']))) {
 
 				DB::query('INSERT INTO messages VALUES (null,:body,:sender,:receiver,0)',array(':body'=>$_POST['body'],':sender'=>$userid, ':receiver'=>htmlspecialchars($_GET['receiver'])));
