@@ -4,7 +4,7 @@
 	include ('classes/Login.php');
 	$cstring = TRUE;
 	$token = bin2hex(openssl_random_pseudo_bytes(64,$cstring));
-	if (isset(!$_SESSION['token'])) {
+	if (!isset($_SESSION['token'])) {
 		$_SESSION['token'] = $token;	
 	}
 	
