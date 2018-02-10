@@ -49,6 +49,7 @@
 			echo '{"Error":"User already exist!"}';
 			http_response_code(409);
 		}
+
 		}
 		if ($_GET['url'] == 'auth') {
 			$postBody = file_get_contents("php://input");
@@ -76,8 +77,63 @@
 				http_response_code(401);
 			}
 		}
+		if ($_GET['url'] == 'likes') {
+
+			$token = $_COOKIE['SNID'];
+
+			$likerId = $db->query('SELECT user_id FROM login_tokens WHERE token = :token',array(':token'=>sha1($token)))[0]['user_id'];
+
+			$postId = $_GET['id'] ;
+			if (!$db->query('SELECT user_id FROM post_likes WHERE user_id = :userid AND post_id =:postid',array(':userid'=>$likerId , ':postid'=>$postId))) {
+				$db->query('UPDATE posts SET likes = likes + 1 WHERE id = :postid',array(':postid'=>$postId));
+				$db->query('INSERT INTO post_likes VALUES (null,:postid,:userid)',array(':postid'=>$postId,':userid'=>$likerId));
+
+				//Notify::createNotify(null,$postId);
+			}else{
+				//echo 'already liked!';
+				$db->query('UPDATE posts SET likes = likes  - 1 WHERE id = :postid',array(':postid'=>$postId));
+				$db->query('DELETE FROM post_likes WHERE post_id = :postid AND user_id =:userid',array(':postid'=>$postId,':userid'=>$likerId));
+			}
+		}
 	}else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-		echo json_encode($db->query('SELECT * FROM users'));
+		//echo json_encode($db->query('SELECT * FROM users'));
+		if ($_GET['url'] == 'auth') {
+			
+		}else if ($_GET['url'] == 'users') {
+				
+		}else if ($_GET['url'] == 'posts') {
+
+			$token = $_COOKIE['SNID'];
+
+			$userid = $db->query('SELECT user_id FROM login_tokens WHERE token = :token',array(':token'=>sha1($token)))[0]['user_id'];
+
+
+			$followingposts = $db->query('SELECT posts.id, posts.post,posts.likes,posts.posted_at,users.username FROM posts,followers,users
+			WHERE posts.user_id = followers.user_id
+			and posts.user_id = users.id
+			AND followers.follower_id = :userid
+			ORDER BY posts.likes DESC',array(':userid'=>$userid));
+
+			$response = "[";
+			foreach ($followingposts as $post) {
+				
+				$response.= "{";
+				$response.= '"PostId":"'.$post['id'].'",';
+				$response.= '"PostBody":"'.$post['post'].'",';
+				$response.= '"PostedBy":"'.$post['username'].'",';
+				$response.= '"PostedAt":"'.$post['posted_at'].'",';
+				$response.= '"Likes":"'.$post['likes'].'"';
+				$response.= "},";
+		 		
+		
+			}
+
+			$response = substr($response, 0,strlen($response)-1);
+			$response.= "]";
+
+			echo $response;
+		}
+
 		http_response_code(200);
 	}else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 		if ($_GET['url']=='auth') {

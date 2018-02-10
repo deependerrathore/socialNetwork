@@ -1,0 +1,14 @@
+{
+  "name": "eventunacademy3.0",
+  "version": "1.0.0",
+  "description": "Landing page of eventunacademy",
+  "main": "index.js",
+  "scripts": {
+    "compile:sass": "node-sass sass/main.scss css/styles.css -w"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "node-sass": "^4.7.2"
+  }
+}
